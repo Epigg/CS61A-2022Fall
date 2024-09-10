@@ -220,7 +220,7 @@ def is_always_roll(strategy, goal=GOAL):
     # END PROBLEM 7
 
 
-def make_averaged(original_function, total_samples=100000):
+def make_averaged(original_function, total_samples=1000):
     """Return a function that returns the average value of ORIGINAL_FUNCTION
     called TOTAL_SAMPLES times.
 
@@ -300,11 +300,11 @@ def run_experiments():
     print('final_strategy win rate:', average_win_rate(final_strategy))
     "*** You may add additional experiments as you wish ***"
     print('---')
-    print('always_roll(5) win rate:', average_win_rate(always_roll(5)))
-    print('always_roll(7) win rate:', average_win_rate(always_roll(7)))
-    print('averaged_score as num_rolls=5:', make_averaged(roll_dice)(5))
-    print('averaged_score as num_rolls=6:', make_averaged(roll_dice)(6))
-    print('averaged_score as num_rolls=7:', make_averaged(roll_dice)(7))
+    # print('always_roll(5) win rate:', average_win_rate(always_roll(5)))
+    # print('always_roll(7) win rate:', average_win_rate(always_roll(7)))
+    # print('averaged_score as num_rolls=5:', make_averaged(roll_dice)(5))
+    # print('averaged_score as num_rolls=6:', make_averaged(roll_dice)(6))
+    # print('averaged_score as num_rolls=7:', make_averaged(roll_dice)(7))
 
 def tail_strategy(score, opponent_score, threshold=12, num_rolls=6):
     """This strategy returns 0 dice if Pig Tail gives at least THRESHOLD
@@ -331,9 +331,8 @@ def final_strategy(score, opponent_score):
 
     *** YOUR DESCRIPTION HERE ***
     1. tail_point能否获胜
-    2. 掷小个数骰子能否获胜
-    tail决策得分作为threshold
-    3. 如果不是平方数且下下个平方数大于GOAL
+    2. 加一分是平方数且规则生效后获胜
+    3. 掷小个数骰子能否获胜
     4. 如果加一分是平方数 或者tail后加一分是平方数
     5. 分数领先就求稳少投掷一枚
 
@@ -342,24 +341,23 @@ def final_strategy(score, opponent_score):
     if square_update(0, score, opponent_score) >= GOAL:
         return 0
     
-    average_scores = [0, 3.49469, 5.85296, 7.40026, 8.24621, 8.64867, 8.69796, 8.56102, 8.20287, 7.74118, 7.27986]
-    if GOAL - score <= 3: 
-        return 1
-    elif GOAL - score <= 7:
-        return 2
-    
     threshold = square_update(0, score, opponent_score) - score
     next = next_perfect_square(score)
     next_next = next_perfect_square(next)
-
     if next_next >= GOAL:
         if next - score == 1 or next - score == 2:
             return 10
-    else:
-        if score > 9 and next - score == 1 and next_next - score >= threshold:
-            return 10
-        if score > 9 and next_next == score + threshold + 1:
-            return 0
+    
+    average_scores = [0, 3.49469, 5.85296, 7.40026, 8.24621, 8.64867, 8.69796, 8.56102, 8.20287, 7.74118, 7.27986]
+    if GOAL - score <= 3: 
+        return 1
+    elif GOAL - score <= 6:
+        return 2
+    
+    if score > 9 and next - score == 1 and next_next - score >= threshold:
+        return 10
+    if score > 9 and next_next == score + threshold + 1:
+        return 0
 
     num_rolls = square_strategy(score, opponent_score, 10)
     if num_rolls > 0 and score > opponent_score:
